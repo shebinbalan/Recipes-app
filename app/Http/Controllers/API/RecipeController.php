@@ -17,7 +17,7 @@ class RecipeController extends Controller
      */
     public function index() : JsonResponse
     {
-        $recipe = Recipe::all();
+        $recipe = Recipe::paginate(5);
     
         return $this->sendResponse(RecipeResource::collection($recipe), 'Recipes retrieved successfully.');
     }
@@ -33,9 +33,14 @@ class RecipeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) : JsonResponse
+    Protected function store(Request $request) : JsonResponse
     {
         $input = $request->all();
+
+        if ($s = $request->input('s')) {
+            $input->whereRaw("name LIKE '%" . $s . "%'")
+                ->orWhereRaw("vegetarian LIKE '%" . $s . "%'");
+        }
    
         $validator = Validator::make($input, [
             'name' => 'required',
@@ -78,7 +83,7 @@ class RecipeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Recipe $recipe ) : JsonResponse
+    Protected function update(Request $request, Recipe $recipe ) : JsonResponse
     {
         $input = $request->all();
    
@@ -105,7 +110,7 @@ class RecipeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Recipe $recipe ) : JsonResponse
+    Protected function destroy(Recipe $recipe ) : JsonResponse
     {
         $recipe->delete();
    
